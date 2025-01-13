@@ -24,6 +24,7 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -98,12 +99,20 @@ public class PersonJobService {
 	private Step createStep(List<Person> data) {
 		return new StepBuilder("step", jobRepository)
 				.<Person, Person> chunk(10, transactionManager)
-				.reader(new ListItemReader<>(data))
+				.reader(reader(data))
 				.processor(processor())
-				//.writer(items -> items.forEach(item -> log.info("Writing " + item.toString())))
 				.writer(writer())
 				.build();
 	}	
+
+	/**
+	 * custom reader
+	 * 
+	 * @return
+	 */
+	private ItemReader<Person> reader(List<Person> data) {
+		return new ListItemReader<>(data);
+	}
 
 	/**
 	 * custom processor
